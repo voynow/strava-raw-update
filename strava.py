@@ -71,31 +71,10 @@ def create_oauth_url():
     return url_string
 
 
-def get_activities_url(access_token):
-    return {
-        "url": "https://www.strava.com/api/v3/athlete/activities",
-        "params": {
-            "header": {'Authorization': 'Bearer ' + access_token},
-            "param": {'per_page': 50, 'page': 1}
-        }
-    }
-
-
-def get_activities(access_token):
-    """
-    Get activity data using access token from oauth API call
-    """
-    activities_url = get_activities_url(access_token)
-
-    return requests.get(
-        activities_url['url'], 
-        headers=activities_url['params']['header'], 
-        params=activities_url['params']['param']
-    ).json()
-
-
 def auth():
-
+    """
+    Connect to strava api
+    """
     oauth_url = create_oauth_url()
     resp = requests.post(oauth_url)
 
@@ -103,3 +82,22 @@ def auth():
         return resp
     else:
         raise Exception(f"Oauth request returning invalid status code: {resp.status_code}")
+
+
+def get_request(access_token, url_suffix):
+    """
+    Constructs get request to strava api
+    """
+    return requests.get(
+        f'https://www.strava.com/api/v3/{url_suffix}',
+        headers={'Authorization': f'Bearer {access_token}'},
+        params={'per_page': 200, 'page': 1}
+    ).json()
+
+
+def get_activity_details(access_token, activity_id):
+    """
+    Collects zones, laps, and streams data given some activity
+    """
+    urls = configs.get_request_urls(activity_id)
+    return {key: get_request(access_token, url) for key, url in urls.items()}

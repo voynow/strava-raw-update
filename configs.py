@@ -9,9 +9,7 @@ client_secret = secrets['client_secret']
 email = secrets['email']
 password = secrets['password']
 
-
-# string format config
-strfrmt = "%m/%d/%Y, %H:%M:%S"
+streams_url_keys = "time,distance,latlng,altitude,velocity_smooth,heartrate,cadence,watts,temp,moving,grade_smooth"
 
 
 def get_oauth_code_param():
@@ -30,11 +28,10 @@ def get_oauth_url(code):
     }
 
 
-def get_activities_url(access_token):
+def get_request_urls(activity_id):
+    
     return {
-        "url": "https://www.strava.com/api/v3/athlete/activities",
-        "params": {
-            "header": {'Authorization': 'Bearer ' + access_token},
-            "param": {'per_page': 200, 'page': 1}
-        }
+        "zones": f'activities/{activity_id}/zones',
+        "laps": f'activities/{activity_id}/laps',
+        "streams": f'activities/{activity_id}/streams?keys={streams_url_keys}&key_by_type=true'
     }
