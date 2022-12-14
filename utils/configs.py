@@ -9,7 +9,13 @@ client_secret = secrets['client_secret']
 email = secrets['email']
 password = secrets['password']
 
-streams_url_keys = "time,distance,latlng,altitude,velocity_smooth,heartrate,cadence,watts,temp,moving,grade_smooth"
+activities_base_url = 'activities/'
+streams_endpoint_keys = "time,distance,latlng,altitude,velocity_smooth,heartrate,cadence,watts,temp,moving,grade_smooth"
+activities_endpoints = {
+        "zones": '/zones',
+        "laps": '/laps',
+        "streams": f'/streams?keys={streams_endpoint_keys}&key_by_type=true'
+}
 
 
 def get_oauth_code_param():
@@ -28,10 +34,3 @@ def get_oauth_url(code):
     }
 
 
-def get_request_urls(activity_id):
-    
-    return {
-        "zones": f'activities/{activity_id}/zones',
-        "laps": f'activities/{activity_id}/laps',
-        "streams": f'activities/{activity_id}/streams?keys={streams_url_keys}&key_by_type=true'
-    }

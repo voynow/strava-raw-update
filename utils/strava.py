@@ -95,9 +95,27 @@ def get_request(access_token, url_suffix):
     ).json()
 
 
-def get_activity_details(access_token, activity_id):
+def validate_resp(resp):
+    if isinstance(resp, list):
+        if len(resp) == 1:
+            resp = resp[0]
+        else:
+            raise ValueError("Invalid response: response is a list where len(response) > 1")
+    return resp
+
+
+def batch_get_request(table, ids, access_token):
     """
-    Collects zones, laps, and streams data given some activity
+    construct list of get urls given table and activty ids
     """
-    urls = configs.get_request_urls(activity_id)
-    return {key: get_request(access_token, url) for key, url in urls.items()}
+    prefix = configs.activities_base_url
+    suffix = configs.activities_endpoints[table]
+
+    data = {}
+    for i, idx in enumerate(ids):
+        if not i % 10:
+            print(f"Executing request {i} of {len(ids)}")
+        url = f'{prefix}{idx}{suffix}'
+        response = validate_resp(get_request(access_token, url))
+        data[idx] = response
+    return data
