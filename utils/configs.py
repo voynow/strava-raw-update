@@ -1,4 +1,4 @@
-import secrets_manager
+import utils.secrets_manager as secrets_manager
 
 # get secrets from secrets manager
 secrets = secrets_manager.get_secrets()

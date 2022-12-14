@@ -1,4 +1,4 @@
-import configs
+import utils.configs as configs
 import requests
 
 from selenium import webdriver
