@@ -99,8 +99,6 @@ def validate_resp(resp):
     if isinstance(resp, list):
         if len(resp) == 1:
             resp = resp[0]
-        else:
-            raise ValueError("Invalid response: response is a list where len(response) > 1")
     return resp
 
 
@@ -113,8 +111,8 @@ def batch_get_request(table, ids, access_token):
 
     data = {}
     for i, idx in enumerate(ids):
-        if not i % 10:
-            print(f"Executing request {i} of {len(ids)}")
+        if not (i + 1) % 10:
+            print(f"{table}: executing request {i + 1} of {len(ids)}")
         url = f'{prefix}{idx}{suffix}'
         response = validate_resp(get_request(access_token, url))
         data[idx] = response
