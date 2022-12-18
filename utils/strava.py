@@ -96,11 +96,14 @@ def get_request(access_token, url_suffix):
 
 
 def validate_resp(resp):
+    # extract data from nested list
     if isinstance(resp, list):
         if len(resp) == 1:
             resp = resp[0]
-        else:
-            raise ValueError("Invalid response: response is a list where len(response) > 1")
+    # skip error response from API limit
+    if 'message' in resp:
+        if resp['message'] == configs.rate_exceeded_message:
+            return None
     return resp
 
 
@@ -113,9 +116,10 @@ def batch_get_request(table, ids, access_token):
 
     data = {}
     for i, idx in enumerate(ids):
-        if not i % 10:
-            print(f"Executing request {i} of {len(ids)}")
+        if not (i + 1) % 10:
+            print(f"{table}: executing request {i + 1} of {len(ids)}")
         url = f'{prefix}{idx}{suffix}'
         response = validate_resp(get_request(access_token, url))
-        data[idx] = response
+        if response:
+            data[idx] = response
     return data

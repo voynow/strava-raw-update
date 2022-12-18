@@ -16,6 +16,7 @@ activities_endpoints = {
         "laps": '/laps',
         "streams": f'/streams?keys={streams_endpoint_keys}&key_by_type=true'
 }
+rate_exceeded_message = 'Rate Limit Exceeded'
 
 
 def get_oauth_code_param():
