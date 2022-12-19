@@ -118,8 +118,12 @@ def batch_get_request(table, ids, access_token):
     for i, idx in enumerate(ids):
         if not (i + 1) % 10:
             print(f"{table}: executing request {i + 1} of {len(ids)}")
+
         url = f'{prefix}{idx}{suffix}'
         response = validate_resp(get_request(access_token, url))
-        if response:
-            data[idx] = response
+        if not response:
+            print("API Limit Reached, exiting batch get request")
+            break
+
+        data[idx] = response
     return data
