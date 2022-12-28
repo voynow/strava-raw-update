@@ -2,7 +2,7 @@
 import boto3
 import json
 import pathlib
-import utils.strava as strava
+import utils.strava_api as strava_api
 
 s3 = boto3.resource('s3')
 bucket_name = "strava-raw"
@@ -45,8 +45,8 @@ def details_backfill(table_name):
     backfill_ids = [idx for idx in activity_ids if idx not in table_ids]    
 
     if backfill_ids:
-        access_token = strava.auth().json()['access_token']
-        data = strava.batch_get_request(table_name, backfill_ids, access_token)
+        access_token = strava_api.auth().json()['access_token']
+        data = strava_api.batch_get_request(table_name, backfill_ids, access_token)
         update_s3_obj(table, data, key)
     else:
         print("Exiting: No data to backfill")

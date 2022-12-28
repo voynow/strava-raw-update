@@ -1,3 +1,4 @@
+
 import utils.secrets_manager as secrets_manager
 
 # get secrets from secrets manager
@@ -18,6 +19,9 @@ activities_endpoints = {
 }
 rate_exceeded_message = 'Rate Limit Exceeded'
 
+# string format config
+strfrmt = "%m/%d/%Y, %H:%M:%S"
+
 
 def get_oauth_code_param():
     return f"https://www.strava.com/oauth/authorize?client_id={client_id}&redirect_uri=http://localhost&response_type=code&scope=activity:read_all"
@@ -35,3 +39,11 @@ def get_oauth_url(code):
     }
 
 
+def get_activities_url(access_token):
+    return {
+        "url": "https://www.strava.com/api/v3/athlete/activities",
+        "params": {
+            "header": {'Authorization': 'Bearer ' + access_token},
+            "param": {'per_page': 200, 'page': 1}
+        }
+    }

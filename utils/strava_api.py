@@ -71,28 +71,46 @@ def create_oauth_url():
     return url_string
 
 
-def auth():
+def get_activities_url(access_token):
+    return {
+        "url": "https://www.strava.com/api/v3/athlete/activities",
+        "params": {
+            "header": {'Authorization': 'Bearer ' + access_token},
+            "param": {'per_page': 50, 'page': 1}
+        }
+    }
+
+
+def get_activities(access_token):
     """
-    Connect to strava api
+    Get activity data using access token from oauth API call
     """
+    activities_url = get_activities_url(access_token)
+
+    return requests.get(
+        activities_url['url'], 
+        headers=activities_url['params']['header'], 
+        params=activities_url['params']['param']
+    ).json()
+
+
+def get_access_token():
+
     oauth_url = create_oauth_url()
     resp = requests.post(oauth_url)
 
     if resp.status_code == 200:
-        return resp
+        return resp.json()['access_token']
     else:
         raise Exception(f"Oauth request returning invalid status code: {resp.status_code}")
 
 
-def get_request(access_token, url_suffix):
+def get_urls(ids, table):
     """
-    Constructs get request to strava api
     """
-    return requests.get(
-        f'https://www.strava.com/api/v3/{url_suffix}',
-        headers={'Authorization': f'Bearer {access_token}'},
-        params={'per_page': 200, 'page': 1}
-    ).json()
+    prefix = configs.activities_base_url
+    suffix = configs.activities_endpoints[table]
+    return [(i, f'{prefix}{i}{suffix}') for i in ids]
 
 
 def validate_resp(resp):
@@ -107,23 +125,14 @@ def validate_resp(resp):
     return resp
 
 
-def batch_get_request(table, ids, access_token):
+def get_request(access_token, url_suffix):
     """
-    construct list of get urls given table and activty ids
+    Constructs get request to strava api
     """
-    prefix = configs.activities_base_url
-    suffix = configs.activities_endpoints[table]
+    resp = requests.get(
+        f'https://www.strava.com/api/v3/{url_suffix}',
+        headers={'Authorization': f'Bearer {access_token}'},
+        params={'per_page': 200, 'page': 1}
+    ).json()
 
-    data = {}
-    for i, idx in enumerate(ids):
-        if not (i + 1) % 10:
-            print(f"{table}: executing request {i + 1} of {len(ids)}")
-
-        url = f'{prefix}{idx}{suffix}'
-        response = validate_resp(get_request(access_token, url))
-        if not response:
-            print("API Limit Reached, exiting batch get request")
-            break
-
-        data[idx] = response
-    return data
+    return validate_resp(resp)
